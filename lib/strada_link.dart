@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:strada_link_flutter_example/webview.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -23,7 +24,9 @@ class _StradaLinkState extends State<StradaLink> {
     setState(() {
       _linkAccessToken = _textFieldController.text;
     });
-    print(_linkAccessToken);
+    if (kDebugMode) {
+      print(_linkAccessToken);
+    }
     Navigator.push(
       context,
       MaterialPageRoute(

@@ -17,25 +17,50 @@ class _StradaWebViewState extends State<StradaWebView> {
 
   String kTransparentBackgroundPage = '';
 
+  @override
   void initState() {
     super.initState();
 
     kTransparentBackgroundPage = '''
       <!DOCTYPE html>
       <html>
+
       <head>
-        <title>Transparent background test</title>
+        <title>Strada Link</title>
       </head>
       <style type="text/css">
-        body { background: transparent; margin: 0; padding: 0; }
-        #container { position: relative; margin: 0; padding: 0; width: 100vw; height: 100vh; }
-        h1 { text-align: center; }
+        body {
+          background: transparent;
+          margin: 0;
+          padding: 0;
+        }
+
+        #container {
+          position: relative;
+          margin: 0;
+          padding: 0;
+          width: 100vw;
+          height: 100vh;
+        }
+
+        h1 {
+          text-align: center;
+        }
       </style>
+
       <body>
         <div id="container">
           <h1>${widget.linkAccessToken}</h1>
         </div>
-        <script type="text/javascript" src="https://cdn.getstrada.com/link-asset/initialize.js">
+        <script type="text/javascript" src="https://cdn.getstrada.com/link-asset/initialize.js" />
+        <script>
+          window.StradaLink.initialize({
+            env: config.env,
+            linkAccessToken: config.linkAccessToken,
+            onSuccess: config.onSuccess,
+            onReady: () => setIsReady(true),
+          });
+        </script>
       </body>
       </html>
     ''';
@@ -51,7 +76,7 @@ class _StradaWebViewState extends State<StradaWebView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('WebView Screen'),
+        title: const Text('Strada Link'),
       ),
       body: WebViewWidget(
         controller: widget.controller,
