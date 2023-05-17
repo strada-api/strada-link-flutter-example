@@ -1,7 +1,5 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:strada_link_flutter_example/webview.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 class StradaLink extends StatefulWidget {
   @override
@@ -12,28 +10,33 @@ class _StradaLinkState extends State<StradaLink> {
   TextEditingController _textFieldController = TextEditingController();
   String _linkAccessToken = '';
 
-  final controller = WebViewController();
-
   @override
   void dispose() {
     _textFieldController.dispose();
     super.dispose();
   }
 
+  void _onSuccess() {
+    print('success');
+  }
+
+  void _onReady() {
+    print('ready');
+  }
+
   void _openWebview() {
     setState(() {
       _linkAccessToken = _textFieldController.text;
     });
-    if (kDebugMode) {
-      print(_linkAccessToken);
-    }
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => StradaWebView(
+            env: 'local',
             linkAccessToken: _linkAccessToken,
             key: GlobalKey(),
-            controller: controller),
+            onSuccess: _onSuccess,
+            onReady: _onReady),
       ),
     );
   }
