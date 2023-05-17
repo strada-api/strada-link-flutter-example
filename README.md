@@ -2,7 +2,7 @@
 
 Requirements:
 
-- Having installed Flutter (Xcode and Cocoapods for iOS).
+- Flutter (Xcode and Cocoapods for iOS).
 
 Install packages
 > `flutter pub get`
