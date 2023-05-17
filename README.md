@@ -9,6 +9,7 @@ Install packages:
 
 Running on a iOS Simulator:
 `open -a Simulator`
+
 `flutter run`
 
 Running on Chrome:
