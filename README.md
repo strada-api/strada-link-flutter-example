@@ -4,12 +4,12 @@ Requirements:
 
 - Flutter (Xcode and Cocoapods for iOS).
 
-Install packages
-> `flutter pub get`
+Install packages:
+`flutter pub get`
 
 Running on a iOS Simulator:
-> `open -a Simulator`
-> `flutter run`
+`open -a Simulator`
+`flutter run`
 
 Running on Chrome:
-> `flutter run -d chrome --release`
+`flutter run -d chrome --release`
