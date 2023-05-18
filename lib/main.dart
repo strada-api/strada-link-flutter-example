@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:strada_link_flutter_example/strada_link.dart';
 
-void main() {
-  runApp(const MyApp());
+Future main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(new MyApp());
 }
 
 class MyApp extends StatelessWidget {

@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 class StradaWebView extends StatefulWidget {
   final String env;
   final String linkAccessToken;
   final Function onSuccess;
   final Function onReady;
-  WebViewController controller = WebViewController();
 
   StradaWebView(
       {super.key,
@@ -21,28 +20,14 @@ class StradaWebView extends StatefulWidget {
 
 class _StradaWebViewState extends State<StradaWebView> {
   String kTransparentBackgroundPage = '';
+  String _pubToken = '';
+
+  late final InAppWebViewController _webViewController;
+  late final InAppWebViewController _webViewControllerPopup;
 
   @override
   void initState() {
     super.initState();
-
-    widget.controller.setJavaScriptMode(JavaScriptMode.unrestricted);
-
-    widget.controller.addJavaScriptChannel('ConsoleLog',
-        onMessageReceived: (JavaScriptMessage message) {
-      print(message.message);
-    });
-
-    widget.controller.addJavaScriptChannel('CallSuccess',
-        onMessageReceived: (JavaScriptMessage message) {
-      print('Console: ${message.message}');
-      widget.onSuccess(message.message);
-    });
-
-    widget.controller.addJavaScriptChannel('CallReady',
-        onMessageReceived: (JavaScriptMessage message) {
-      widget.onReady();
-    });
 
     kTransparentBackgroundPage = '''
       <!DOCTYPE html>
@@ -75,23 +60,15 @@ class _StradaWebViewState extends State<StradaWebView> {
 
       <body>
         <div id="container">
-          <button style="display:none;" id="open-strada-link">Link With Strada</button>
+          <h1>Strada Link</h1>
         </div>
         <script src="https://cdn.getstrada.com/link-asset/initialize.js" type="application/javascript" defer></script>
 
-
-        <script>
-        window.onerror = function(...error) {  
-          ConsoleLog.postMessage('message =>' + error);
-          return true;
-        };  
-        </script>
-        
         <script>
           const config = {
             linkAccessToken: "${widget.linkAccessToken}",
             env: "${widget.env}",
-            onSuccess: () => onSuccess(),
+            onSuccess: (id) => console.log(id),
             onReady: () => onReady(),
           };
 
@@ -99,29 +76,59 @@ class _StradaWebViewState extends State<StradaWebView> {
             StradaLink.initialize(config);
           }, 200);
 
-          const button = document.getElementById("open-strada-link");
-
-          function onSuccess() {
-              CallSuccess.postMessage("success");
-          }
-
           function onReady() {
               StradaLink.openLink(config);
-              CallReady.postMessage(true);
           }
         </script>
+      
       </body>
       </html>
     ''';
-
-    widget.controller.loadHtmlString(kTransparentBackgroundPage);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Strada Link')),
-      body: WebViewWidget(controller: widget.controller),
+      body: SafeArea(
+        child: Container(
+          child: InAppWebView(
+            initialData:
+                InAppWebViewInitialData(data: kTransparentBackgroundPage),
+            initialOptions: InAppWebViewGroupOptions(
+                crossPlatform: InAppWebViewOptions(
+                    javaScriptCanOpenWindowsAutomatically: true),
+                android:
+                    AndroidInAppWebViewOptions(supportMultipleWindows: true)),
+            onConsoleMessage: (controller, consoleMessage) {
+              print(
+                  consoleMessage); // For debugging console logs in the webview
+              if (consoleMessage.message.contains('pub_')) {
+                RegExp exp = RegExp(r"pub_\w{8}-\w{4}-\w{4}-\w{4}-\w{12}");
+                _pubToken = exp.firstMatch(consoleMessage.message)!.group(0)!;
+              }
+            },
+            onCreateWindow: (controller, createWindowRequest) async {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return InAppWebView(
+                    windowId: createWindowRequest.windowId,
+                    initialOptions: InAppWebViewGroupOptions(),
+                    onLoadStart: (controller, url) async {},
+                    onLoadStop: (controller, url) async {},
+                    onCloseWindow: (controller) async {
+                      Navigator.pop(context);
+                      widget.onSuccess(_pubToken);
+                    },
+                  );
+                },
+              );
+              return true;
+            },
+          ),
+        ),
+      ),
     );
   }
 }
