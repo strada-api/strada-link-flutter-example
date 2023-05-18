@@ -9,6 +9,9 @@ Last time tested: May 18, 2023
 Requirements:
 
 - Flutter (Xcode and Cocoapods for iOS).
+- For web support, add the following script to the `web/index.html` file.
+
+`<script type="application/javascript" src="/assets/packages/flutter_inappwebview/assets/web/web_support.js" defer></script>`
 
 Install packages:
 
